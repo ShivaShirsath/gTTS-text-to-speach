@@ -1,14 +1,14 @@
-# text2audio
+# gTTS-text-to-speach
 
 Turn a spreadsheet of multilingual text into ready-to-use voice clips: one `.wav` per row and language.
 
-```
-ID   | English                         | Hindi                       | Telugu | Tamil | Kannada | Marathi
-A01  | I didn't quite catch that. ...  | मुझे ठीक से सुनाई नहीं दिया। ... | ...    | ...   | ...     | ...
-```
+| ID | English | Hindi | ... | ... | ... | Marathi |
+|---|---|---|---|---|---|---|
+| S01 | The ball is red. | गेंद लाल है। | ... | ... | ... | चेंडू लाल आहे. |
+
 
 ```bash
-python3 csv_to_audio.py ASR_Retry_Feedback_Bank.xlsx
+python3 csv_to_audio.py Sheet.xlsx
 ```
 
 ```
@@ -47,7 +47,7 @@ output/
 Requires Python 3.9+ and ffmpeg (installed automatically on macOS with Homebrew).
 
 ```bash
-git clone <repo-url> && cd text2audio
+git clone https://github.com/ShivaShirsath/gTTS-text-to-speach.git && cd gTTS-text-to-speach
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt     # optional; the script installs what's missing
 ```
@@ -80,13 +80,13 @@ To use your own data, keep the same layout: an `ID` column, then one column per 
 
 ```bash
 # All language columns -> output/<language>/<ID>.wav
-python3 csv_to_audio.py ASR_Retry_Feedback_Bank.xlsx
+python3 csv_to_audio.py Sheet.xlsx
 
 # Only some languages
 python3 csv_to_audio.py sheet.xlsx -c Hindi Marathi
 
 # A different output folder or worksheet
-python3 csv_to_audio.py sheet.xlsx -o ~/audio --sheet "Feedback Bank"
+python3 csv_to_audio.py sheet.xlsx -o ~/audio --sheet "Audio Bank"
 
 # Slower speech, no leading silence
 python3 csv_to_audio.py sheet.xlsx --tempo 0.8 --lead-silence 0
@@ -120,9 +120,9 @@ Hindi, Marathi and Nepali share the Devanagari script. Name the column after the
 
 [`google_sheet_audio_links.gs`](google_sheet_audio_links.gs) adds a **`<Language> Audio`** column next to each language column. Each cell links to that row's clip in Google Drive, and a sidebar player plays clips inside the sheet.
 
-| ID | English | English Audio | Hindi | Hindi Audio | ... |
+| ID | English | English Audio | Hindi | Hindi Audio | ... | Marathi Audio |
 |---|---|---|---|---|---|
-| A01 | I didn't quite catch that... | ▶ A01 | मुझे ठीक से सुनाई नहीं दिया... | ▶ A01 | ... |
+| S01 | The ball is red. | ▶ A01 | गेंद लाल है। | ▶ A01 | ... | चेंडू लाल आहे. | ▶ A01 |
 
 The steps below use `sample.csv`. They work the same for any sheet.
 
@@ -201,7 +201,6 @@ To add more rows later, generate the new audio, upload the new files into the sa
 | `text to wav single.py` | Original single-text version (same audio settings) |
 | `google_sheet_audio_links.gs` | Apps Script that adds audio links and a player to Google Sheets |
 | `sample.csv` | Small example input: 6 rows in 6 languages |
-| `ASR_Retry_Feedback_Bank.xlsx` | Full example input: 100 retry feedback lines in 6 languages |
 | `output/` | Generated audio |
 
 ## Notes
