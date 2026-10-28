@@ -8,7 +8,7 @@ Turn a spreadsheet of multilingual text into ready-to-use voice clips: one `.wav
 
 
 ```bash
-python3 csv_to_audio.py Sheet.xlsx
+python3 main.py Sheet.xlsx
 ```
 
 ```
@@ -25,7 +25,8 @@ output/
 
 - **CSV or Excel input.** Comma- or tab-separated CSV, or any worksheet in an `.xlsx`.
 - **Language from the column header.** Columns named `English`, `Hindi`, `Marathi`, `tamil_sentence` and so on are converted. Other columns, such as `ID` and `Stage`, are skipped.
-- **New languages without code changes.** Add a column and it's picked up. A header that isn't a language name is detected from its script (Telugu, Tamil, Kannada, Gujarati, Bengali, ...).
+- **79 languages.** Add a column named after any [supported language](#supported-languages) and it's picked up with no code changes. If a header isn't a language name, the language is detected from the text's script (Devanagari, Tamil, Arabic, Cyrillic, Chinese, Japanese, ...).
+- **Best available voice for each language.** Google TTS is used by default. Languages Google doesn't cover switch to Microsoft Edge neural voices automatically.
 - **Files named by ID.** `output/<language>/<ID>.wav`, so an app can look up any clip by row ID and language.
 - **Clear speech for learners.** 400 ms of silence before each clip, and speech slowed to 0.9× without changing pitch.
 - **Installs its own dependencies.** Missing Python packages are pip-installed on first run, and ffmpeg is installed with Homebrew if needed.
@@ -33,14 +34,63 @@ output/
 
 ## Supported languages
 
-| Language | Code | | Language | Code |
-|---|---|---|---|---|
-| English | `en` | | Gujarati | `gu` |
-| Hindi | `hi` | | Bengali | `bn` |
-| Marathi | `mr` | | Malayalam | `ml` |
-| Telugu | `te` | | Punjabi | `pa` |
-| Tamil | `ta` | | Urdu | `ur` |
-| Kannada | `kn` | | Nepali | `ne` |
+79 languages. Name a column after the language, for example `Hindi`, `French` or `Chinese`. Headers like `hindi_sentence` and `Chinese (Simplified)` also work, and letter case doesn't matter.
+
+The **Voice** column shows which engine can speak each language. Google is used when available, unless you pass `--engine auto` to prefer Edge.
+
+### Indian languages
+
+| Language | Code | Voice | Language | Code | Voice |
+|---|---|---|---|---|---|
+| Bengali | `bn` | Google + Edge | Marathi | `mr` | Google + Edge |
+| English | `en` | Google + Edge | Nepali | `ne` | Google + Edge |
+| Gujarati | `gu` | Google + Edge | Punjabi | `pa` | Google |
+| Hindi | `hi` | Google + Edge | Tamil | `ta` | Google + Edge |
+| Kannada | `kn` | Google + Edge | Telugu | `te` | Google + Edge |
+| Malayalam | `ml` | Google + Edge | Urdu | `ur` | Google + Edge |
+
+<details>
+<summary><b>All other languages (67)</b></summary>
+
+| Language | Code | Voice | Language | Code | Voice | Language | Code | Voice |
+|---|---|---|---|---|---|---|---|---|
+| Afrikaans | `af` | Google + Edge | Greek | `el` | Google + Edge | Persian | `fa` | Edge |
+| Albanian | `sq` | Google + Edge | Hausa | `ha` | Google | Polish | `pl` | Google + Edge |
+| Amharic | `am` | Google + Edge | Hebrew | `he` | Google + Edge | Portuguese | `pt` | Google + Edge |
+| Arabic | `ar` | Google + Edge | Hungarian | `hu` | Google + Edge | Romanian | `ro` | Google + Edge |
+| Azerbaijani | `az` | Edge | Icelandic | `is` | Google + Edge | Russian | `ru` | Google + Edge |
+| Basque | `eu` | Google | Indonesian | `id` | Google + Edge | Serbian | `sr` | Google + Edge |
+| Bosnian | `bs` | Google + Edge | Irish | `ga` | Edge | Sinhala | `si` | Google + Edge |
+| Bulgarian | `bg` | Google + Edge | Italian | `it` | Google + Edge | Slovak | `sk` | Google + Edge |
+| Burmese | `my` | Google + Edge | Japanese | `ja` | Google + Edge | Slovenian | `sl` | Edge |
+| Cantonese | `yue` | Google + Edge | Javanese | `jv` | Google + Edge | Somali | `so` | Edge |
+| Catalan | `ca` | Google + Edge | Kazakh | `kk` | Edge | Spanish | `es` | Google + Edge |
+| Chinese | `zh` | Google + Edge | Khmer | `km` | Google + Edge | Sundanese | `su` | Google + Edge |
+| Croatian | `hr` | Google + Edge | Korean | `ko` | Google + Edge | Swahili | `sw` | Google + Edge |
+| Czech | `cs` | Google + Edge | Lao | `lo` | Edge | Swedish | `sv` | Google + Edge |
+| Danish | `da` | Google + Edge | Latin | `la` | Google | Thai | `th` | Google + Edge |
+| Dutch | `nl` | Google + Edge | Latvian | `lv` | Google + Edge | Turkish | `tr` | Google + Edge |
+| Estonian | `et` | Google + Edge | Lithuanian | `lt` | Google + Edge | Ukrainian | `uk` | Google + Edge |
+| Filipino | `fil` | Google + Edge | Macedonian | `mk` | Edge | Uzbek | `uz` | Edge |
+| Finnish | `fi` | Google + Edge | Malay | `ms` | Google + Edge | Vietnamese | `vi` | Google + Edge |
+| French | `fr` | Google + Edge | Maltese | `mt` | Edge | Welsh | `cy` | Google + Edge |
+| Galician | `gl` | Google + Edge | Mongolian | `mn` | Edge | Zulu | `zu` | Edge |
+| Georgian | `ka` | Edge | Norwegian | `nb` | Google + Edge | | | |
+| German | `de` | Google + Edge | Pashto | `ps` | Edge | | | |
+
+</details>
+
+You can also print this list: `python3 main.py --list-languages`.
+
+**Not available:** Assamese, Odia, Sanskrit and Inuktitut have no working voice in either engine. Columns in these languages are skipped with a warning.
+
+**Shared scripts:** some languages share a script, so name the column, or set its language with `-l <column>=<code>`:
+- Hindi, Marathi and Nepali (Devanagari). Unnamed columns default to Hindi.
+- Arabic, Urdu, Persian and Pashto (Arabic script). Unnamed columns default to Urdu.
+- Russian, Ukrainian, Bulgarian and others (Cyrillic). Unnamed columns default to Russian.
+- Most European and African languages (Latin script). Unnamed columns default to English.
+
+**Regional variants:** Google's `fr-CA`, `pt-PT` and `zh-TW` work with `-l <column>=fr-CA`. For other accents with Edge voices, use `--voice`, for example `-v es=es-MX-DaliaNeural`.
 
 ## Setup
 
@@ -54,7 +104,7 @@ pip install -r requirements.txt     # optional; the script installs what's missi
 
 ## Quick start with the sample
 
-[`sample.csv`](sample.csv) has 3 words and 3 sentences in 6 languages, in the same layout as a real sheet:
+[`examples/sample.csv`](examples/sample.csv) has 3 words and 3 sentences in 6 languages, in the same layout as a real sheet:
 
 | ID | Stage | English | Hindi | Telugu | Tamil | Kannada | Marathi |
 |---|---|---|---|---|---|---|---|
@@ -62,7 +112,7 @@ pip install -r requirements.txt     # optional; the script installs what's missi
 | S01 | Sentences | The ball is red. | गेंद लाल है। | బంతి ఎరుపు రంగులో ఉంది. | பந்து சிவப்பு நிறத்தில் உள்ளது. | ಚೆಂಡು ಕೆಂಪು ಬಣ್ಣದ್ದಾಗಿದೆ. | चेंडू लाल आहे. |
 
 ```bash
-python3 csv_to_audio.py sample.csv
+python3 main.py examples/sample.csv
 ```
 
 This creates 36 clips (6 rows × 6 languages):
@@ -80,19 +130,23 @@ To use your own data, keep the same layout: an `ID` column, then one column per 
 
 ```bash
 # All language columns -> output/<language>/<ID>.wav
-python3 csv_to_audio.py Sheet.xlsx
+python3 main.py Sheet.xlsx
 
 # Only some languages
-python3 csv_to_audio.py sheet.xlsx -c Hindi Marathi
+python3 main.py sheet.xlsx -c Hindi Marathi
 
 # A different output folder or worksheet
-python3 csv_to_audio.py sheet.xlsx -o ~/audio --sheet "Audio Bank"
+python3 main.py sheet.xlsx -o ~/audio --sheet "Audio Bank"
 
 # Slower speech, no leading silence
-python3 csv_to_audio.py sheet.xlsx --tempo 0.8 --lead-silence 0
+python3 main.py sheet.xlsx --tempo 0.8 --lead-silence 0
 
 # More natural-sounding voices (Microsoft Edge neural TTS)
-python3 csv_to_audio.py sheet.xlsx --engine auto --gender male
+python3 main.py sheet.xlsx --engine auto --gender male
+
+# Show every supported language, or the Edge voices for one language
+python3 main.py --list-languages
+python3 main.py --list-voices mr
 ```
 
 ### Options
@@ -107,29 +161,28 @@ python3 csv_to_audio.py sheet.xlsx --engine auto --gender male
 | `--tempo` | `0.9` | Playback speed with pitch kept (0.5–2.0, `1` = off) |
 | `--lead-silence` | `400` | Silence before speech, in ms |
 | `--sample-rate` | source (24 kHz) | Resample, e.g. `16000` |
-| `-e, --engine` | `gtts` | `gtts` (Google), `auto` (Edge neural voices, gTTS fallback), `edge`, `say` (macOS) |
+| `-e, --engine` | `gtts` | `gtts` (Google first), `auto`/`edge` (Edge neural voices first), `say` (macOS). Each falls back to the other engine for languages it lacks. |
 | `--gender` | `female` | Edge voice gender |
 | `-v, --voice` | | Pick an Edge voice, e.g. `hi=hi-IN-MadhurNeural` |
 | `--list-voices` | | List Edge voices for a language, e.g. `--list-voices ta` |
-| `-l, --lang-map` | | Set a column's language, e.g. `Text=mr` |
+| `--list-languages` | | List all supported languages and which engine speaks each one |
+| `-l, --lang-map` | | Set a column's language, e.g. `Text=mr` or `Text=fr-CA` |
 | `--overwrite` | off | Regenerate files that already exist |
-
-Hindi, Marathi and Nepali share the Devanagari script. Name the column after the language, or set it with `-l <column>=mr`.
 
 ## Add the audio to Google Sheets
 
-[`google_sheet_audio_links.gs`](google_sheet_audio_links.gs) adds a **`<Language> Audio`** column next to each language column. Each cell links to that row's clip in Google Drive, and a sidebar player plays clips inside the sheet.
+[`google_sheets/google_sheet_audio_links.gs`](google_sheets/google_sheet_audio_links.gs) adds a **`<Language> Audio`** column next to each language column. Each cell links to that row's clip in Google Drive, and a sidebar player plays clips inside the sheet.
 
-| ID | English | English Audio | Hindi | Hindi Audio | ... | Marathi Audio |
-|---|---|---|---|---|---|
-| S01 | The ball is red. | ▶ A01 | गेंद लाल है। | ▶ A01 | ... | चेंडू लाल आहे. | ▶ A01 |
+| ID | English | English Audio | Hindi | Hindi Audio | ... | Marathi | Marathi Audio |
+|---|---|---|---|---|---|---|---|
+| S01 | The ball is red. | ▶ S01 | गेंद लाल है। | ▶ S01 | ... | चेंडू लाल आहे. | ▶ S01 |
 
 The steps below use `sample.csv`. They work the same for any sheet.
 
 ### Step 1: Generate the audio
 
 ```bash
-python3 csv_to_audio.py sample.csv
+python3 main.py examples/sample.csv
 ```
 
 ### Step 2: Put the data in Google Sheets
@@ -150,7 +203,7 @@ If your data is in an `.xlsx` file, upload it to Drive and open it, then choose 
 ### Step 4: Add the linking script
 
 1. In the Google Sheet, go to **Extensions → Apps Script**.
-2. Delete everything in `Code.gs`, then paste in the contents of [`google_sheet_audio_links.gs`](google_sheet_audio_links.gs).
+2. Delete everything in `Code.gs`, then paste in the contents of [`google_sheets/google_sheet_audio_links.gs`](google_sheets/google_sheet_audio_links.gs).
 3. Replace `PASTE_OUTPUT_FOLDER_ID_HERE` with the folder ID from Step 3:
    ```js
    const OUTPUT_FOLDER_ID = '1AbC...xyz';
@@ -186,25 +239,58 @@ To add more rows later, generate the new audio, upload the new files into the sa
 | `0 / N rows linked` | The `ID` values don't match the file names. Check for numbers that lost their leading zeros on import (`001` → `1`). |
 | A link opens but won't play for a teammate | Share the Drive folder with them, or have them use the sidebar player. |
 
+## Change the defaults
+
+Every setting lives in [`text2audio/config.py`](text2audio/config.py). Edit a value there to change it for every run, or override it for one run with a command-line option.
+
+```python
+OUTPUT_DIR = PROJECT_ROOT / "output"   # where clips are saved
+ENGINE = "gtts"                         # gtts | auto | edge | say
+TEMPO = 0.9                             # playback speed, pitch kept
+LEAD_SILENCE_MS = 400                   # silence before speech
+FORMAT = "wav"                          # wav | mp3 | m4a
+NAME_BY = "ID"                          # column used for file names
+GENDER = "female"                       # Edge voice gender
+CONCURRENCY = 4                         # parallel TTS requests
+```
+
+To add a language or change a language's voice, edit the `LANGUAGES` table in the same file.
+
 ## How it works
 
-1. **Read the sheet.** The script reads the CSV or worksheet and finds the language of each column from its header, or from the script the text is written in.
-2. **Synthesize the speech.** Each text is sent to the chosen TTS engine, a few requests at a time, with retries.
-3. **Process the audio.** ffmpeg adds the leading silence, applies `atempo` and writes 16-bit mono WAV, the same processing as `text to wav single.py`.
-4. **Save the file.** Each clip is saved as `output/<language>/<ID>.wav`.
+1. **Read the sheet** (`sheet.py`). The script loads the CSV or worksheet, and `language.py` works out each column's language from its header, or from the script the text is written in.
+2. **Choose the voices** (`pipeline.py`). Each language gets Google TTS or an Edge voice, following `ENGINE_ORDER` in `config.py`.
+3. **Synthesize the speech** (`audio.py`). Each text is sent to its engine, a few requests at a time, with retries.
+4. **Process the audio** (`audio.py`). ffmpeg adds the leading silence, applies `atempo` and writes 16-bit mono WAV, the same processing as `examples/text_to_wav_single.py`.
+5. **Save the file.** Each clip is saved as `output/<language>/<ID>.wav`.
 
-## Files
+## Project structure
 
-| File | Purpose |
-|---|---|
-| `csv_to_audio.py` | Batch converter, sheet → audio |
-| `text to wav single.py` | Original single-text version (same audio settings) |
-| `google_sheet_audio_links.gs` | Apps Script that adds audio links and a player to Google Sheets |
-| `sample.csv` | Small example input: 6 rows in 6 languages |
-| `output/` | Generated audio |
+```
+.
+├── main.py                     # Entry point: python3 main.py <sheet> [options]
+├── text2audio/                 # The package
+│   ├── config.py               # All settings and the language table
+│   ├── cli.py                  # Command-line options (defaults from config.py)
+│   ├── pipeline.py             # Sheet → jobs → voice choice → audio files
+│   ├── sheet.py                # Read CSV/XLSX, pick columns, build file names
+│   ├── language.py             # Language detection and engine language codes
+│   ├── audio.py                # gTTS / Edge / say engines and ffmpeg processing
+│   ├── deps.py                 # Install missing packages and ffmpeg on first use
+│   └── __main__.py             # Also runnable as: python3 -m text2audio <sheet>
+├── examples/
+│   ├── sample.csv              # 6 rows in 6 languages
+│   └── text_to_wav_single.py   # Original single-text version (same audio settings)
+├── google_sheets/
+│   └── google_sheet_audio_links.gs   # Apps Script: audio links and player in Google Sheets
+├── output/                     # Generated audio: output/<language>/<ID>.wav
+└── requirements.txt
+```
+
+The modules depend on each other in one direction only: `main.py → cli → pipeline → sheet / language / audio / deps → config`.
 
 ## Notes
 
 - Both gTTS and Edge TTS need an internet connection.
-- `--engine auto` uses the unofficial Microsoft Edge read-aloud service, so it may change or be rate-limited. For production, use Azure Speech (same voices) or Google Cloud TTS.
-- Odia has no voice in gTTS or Edge TTS and is skipped with a warning.
+- Edge voices (`--engine auto`, and the automatic fallback for languages Google lacks) come from the unofficial Microsoft Edge read-aloud service, which may change or be rate-limited. For production, use Azure Speech (same voices) or Google Cloud TTS.
+- `edge-tts` is only installed the first time a sheet needs an Edge voice.
